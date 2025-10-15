@@ -39,6 +39,14 @@ header .bottom-section .container {
   height: 100%;
 }
 
+@media (max-width: 768px) {
+  header .bottom-section .container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
 header .bottom-section nav {
   height: 100%;
   display: flex;
@@ -60,6 +68,7 @@ header .bottom-section nav .link {
   header .bottom-section nav {
     overflow-y: hidden;
     align-items: flex-start;
+    height: fit-content;
   }
 }
 
@@ -147,6 +156,12 @@ footer .bottom-section .links-container > * {
   width: 25%;
 }
 
+@media (max-width: 768px) {
+  footer .bottom-section .links-container > * {
+    width: 50%;
+  }
+}
+
 footer .bottom-section .links-container .link:hover {
   text-decoration: underline;
 }
@@ -158,6 +173,12 @@ footer .bottom-section .term-of-use {
   gap: 10px;
 }
 
+@media (max-width: 768px) {
+  footer .bottom-section .term-of-use {
+    flex-direction: column;
+  }
+}
+
 footer .bottom-section .term-of-use p {
   color: white;
   text-decoration: none;
@@ -165,4 +186,90 @@ footer .bottom-section .term-of-use p {
 
 footer .bottom-section .term-of-use a {
   color: white;
+}
+
+/* Mobile Menu Hamburger */
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  position: relative;
+  z-index: 1001;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: block;
+  }
+}
+
+.hamburger-icon {
+  display: flex;
+  flex-direction: column;
+  width: 20px;
+  height: 20px;
+  justify-content: space-between;
+  transition: opacity 0.3s ease;
+}
+
+.hamburger-icon span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: rgb(20, 20, 20);
+  transition: all 0.3s ease;
+}
+
+.close-icon {
+  display: none;
+  font-size: 24px;
+  color: rgb(20, 20, 20);
+  transition: opacity 0.3s ease;
+}
+
+.mobile-menu-toggle.active .hamburger-icon {
+  display: none;
+}
+
+.mobile-menu-toggle.active .close-icon {
+  display: block;
+}
+
+/* Mobile Navigation */
+@media (max-width: 768px) {
+  header .bottom-section nav {
+    flex-direction: row;
+    align-items: center;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid rgb(230, 232, 234);
+    border-top: none;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  header .bottom-section nav.mobile-open {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  header .bottom-section nav .link {
+    padding: 15px 20px;
+    width: 100%;
+    text-align: left;
+  }
+
+  header .bottom-section nav .link:last-child {
+    border-bottom: none;
+  }
+
+  header .bottom-section .container {
+    position: relative;
+  }
 }
