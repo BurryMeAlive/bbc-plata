@@ -273,3 +273,13 @@ footer .bottom-section .term-of-use a {
     position: relative;
   }
 }
+
+#content {
+  padding-top: 30px;
+}
+
+@media (max-width: 768px) {
+  #content {
+    padding-top: 80px;
+  }
+}
