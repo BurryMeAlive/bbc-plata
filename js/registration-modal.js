@@ -1,3 +1,12 @@
+// CRM Configuration
+const CRM_CONFIG = {
+  endpoint: 'https://crm.lead-cosmetology.site/api/leads',
+  source: 'Motorola',
+  defaultUserId: '14',
+  landingName: 'test', // Нужно будет указать правильное название воронки
+  description: 'Заявка с лендинга PLATA'
+};
+
 // Registration Modal JavaScript
 class RegistrationModal {
   constructor() {
@@ -73,7 +82,7 @@ class RegistrationModal {
       this.phoneInputInstance = window.intlTelInput(phoneInput, {
         initialCountry: this.userCountry || 'de',
         preferredCountries: [this.userCountry || 'de', 'de', 'us', 'gb', 'ru'],
-        separateDialCode: false,
+        separateDialCode: true, // Показывать региональный код отдельно
         showSearchBox: false,
         useFullscreenPopup: false,
         dropdownContainer: phoneFormGroup,
@@ -98,14 +107,37 @@ class RegistrationModal {
       phoneInput.addEventListener('countrychange', () => {
         this.updatePhonePlaceholder();
         this.clearFieldError(phoneInput);
+        phoneInput.classList.remove('error');
+        
+        // Перепроверяем номер после смены страны
+        const currentValue = phoneInput.value.trim();
+        if (currentValue.length > 0) {
+          setTimeout(() => {
+            this.validatePhoneField();
+          }, 100); // Небольшая задержка для обновления контрола
+        }
       });
       
       phoneInput.addEventListener('input', () => {
+        // Очищаем ошибки при вводе
         this.clearFieldError(phoneInput);
+        
+        // Проверяем в реальном времени для длинных номеров
+        const currentValue = phoneInput.value.trim();
+        if (currentValue.length >= 7) { // Минимальная длина для проверки
+          setTimeout(() => {
+            if (this.phoneInputInstance && this.phoneInputInstance.isValidNumber()) {
+              this.clearFieldError(phoneInput);
+              phoneInput.classList.remove('error');
+            }
+          }, 300); // Небольшая задержка для стабильности
+        }
       });
       
       phoneInput.addEventListener('blur', () => {
-        if (phoneInput.value.trim()) {
+        // Проверяем при потере фокуса, если что-то введено
+        const currentValue = phoneInput.value.trim();
+        if (currentValue.length > 0) {
           this.validatePhoneField();
         }
       });
@@ -166,7 +198,23 @@ class RegistrationModal {
         );
         
         if (exampleNumber) {
-          phoneInput.placeholder = exampleNumber;
+          // Убираем региональный код из placeholder (например, убираем +370 из "+370 123 45678")
+          let nationalExample = exampleNumber;
+          
+          // Получаем региональный код
+          const dialCode = countryData.dialCode;
+          
+          // Убираем региональный код из примера
+          if (nationalExample.startsWith('+' + dialCode)) {
+            nationalExample = nationalExample.substring(('+' + dialCode).length).trim();
+          } else if (nationalExample.startsWith(dialCode)) {
+            nationalExample = nationalExample.substring(dialCode.length).trim();
+          }
+          
+          // Убираем ведущие нули и лишние символы
+          nationalExample = nationalExample.replace(/^[\s\-\(\)0]+/, '');
+          
+          phoneInput.placeholder = nationalExample || 'Введите номер телефона';
         } else {
           phoneInput.placeholder = 'Введите номер телефона';
         }
@@ -175,6 +223,103 @@ class RegistrationModal {
       }
     } catch (error) {
       console.error('Error updating phone placeholder:', error);
+      // Fallback placeholder
+      const phoneInput = document.getElementById('phone');
+      if (phoneInput) {
+        phoneInput.placeholder = 'Введите номер телефона';
+      }
+    }
+  }
+  
+  // Get user_id from URL parameters or use default
+  getUserIdFromUrl() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const userId = urlParams.get('user_id') || urlParams.get('uid') || urlParams.get('buyer_id');
+      return userId || CRM_CONFIG.defaultUserId;
+    } catch (e) {
+      console.warn('Failed to get user_id from URL:', e);
+      return CRM_CONFIG.defaultUserId;
+    }
+  }
+  
+  // Get country name from phone input instance
+  getCountryFromPhoneInput() {
+    try {
+      if (this.phoneInputInstance && this.phoneInputInstance.getSelectedCountryData) {
+        const countryData = this.phoneInputInstance.getSelectedCountryData();
+        return countryData && countryData.name ? countryData.name : 'Germany';
+      }
+      return 'Germany';
+    } catch (e) {
+      console.warn('Failed to get country from phone input:', e);
+      return 'Germany';
+    }
+  }
+  
+  // Format phone number for CRM (remove + sign)
+  formatPhoneForCRM(phoneNumber) {
+    if (!phoneNumber) return '';
+    return phoneNumber.replace(/^\+/, '').replace(/\s+/g, '');
+  }
+  
+  // Send lead to CRM
+  async sendLeadToCRM(leadData) {
+    try {
+      console.log('Отправляем в CRM:', leadData);
+      
+      // Convert to URLSearchParams for application/x-www-form-urlencoded
+      const formData = new URLSearchParams();
+      Object.keys(leadData).forEach(key => {
+        if (leadData[key] !== null && leadData[key] !== undefined) {
+          formData.append(key, leadData[key]);
+        }
+      });
+      
+      const response = await fetch(CRM_CONFIG.endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json'
+        },
+        body: formData
+      });
+      
+      const responseText = await response.text();
+      console.log('CRM ответ (raw):', responseText);
+      
+      let responseData;
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (parseError) {
+        console.warn('Ошибка парсинга JSON:', parseError);
+        responseData = { raw: responseText };
+      }
+      
+      if (!response.ok) {
+        console.error('CRM error:', response.status, responseData);
+        return { 
+          success: false, 
+          status: response.status, 
+          data: responseData,
+          error: `HTTP ${response.status}: ${response.statusText}` 
+        };
+      }
+      
+      console.log('✅ CRM success:', responseData);
+      return { 
+        success: true, 
+        status: response.status, 
+        data: responseData 
+      };
+      
+    } catch (error) {
+      console.error('Ошибка CRM запроса:', error);
+      return { 
+        success: false, 
+        status: 0, 
+        error: error.message || 'Ошибка соединения' 
+      };
     }
   }
   
@@ -259,16 +404,7 @@ class RegistrationModal {
           message: "Введите корректный email адрес"
         }
       },
-      phone: {
-        presence: {
-          message: "Номер телефона обязателен для заполнения"
-        },
-        length: {
-          minimum: 10,
-          message: "Номер телефона должен содержать минимум 10 цифр"
-        }
-        // Phone validation will be added later as requested
-      }
+      // Телефон валидируется отдельно через intl-tel-input
     };
   }
   
@@ -433,18 +569,56 @@ class RegistrationModal {
     
     const phoneValue = phoneInput.value.trim();
     
+    // Проверяем, что поле не пустое
     if (!phoneValue) {
       this.showFieldError(phoneInput, 'Номер телефона обязателен');
       phoneInput.classList.add('error');
       return false;
     }
     
-    if (this.phoneInputInstance.isValidNumber()) {
-      this.clearFieldError(phoneInput);
-      phoneInput.classList.remove('error');
-      return true;
-    } else {
-      this.showFieldError(phoneInput, 'Неверный формат номера телефона');
+    // Проверяем минимальную длину (только для национальной части)
+    if (phoneValue.length < 3) {
+      this.showFieldError(phoneInput, 'Номер слишком короткий');
+      phoneInput.classList.add('error');
+      return false;
+    }
+    
+    try {
+      // Используем встроенную валидацию intl-tel-input
+      // Она проверяет полный номер (национальная часть + региональный код)
+      const isValid = this.phoneInputInstance.isValidNumber();
+      
+      if (isValid) {
+        this.clearFieldError(phoneInput);
+        phoneInput.classList.remove('error');
+        return true;
+      } else {
+        // Получаем более конкретное сообщение об ошибке
+        let errorMessage = 'Неверный формат номера телефона';
+        
+        // Проверяем тип ошибки с помощью utils (if available)
+        if (window.intlTelInputUtils && this.phoneInputInstance.getValidationError) {
+          const errorCode = this.phoneInputInstance.getValidationError();
+          const errorMap = [
+            'Неверный номер', // INVALID_NUMBER
+            'Неверный код страны', // INVALID_COUNTRY_CODE  
+            'Номер слишком короткий', // TOO_SHORT
+            'Номер слишком длинный', // TOO_LONG
+            'Неверный номер' // INVALID_NUMBER (fallback)
+          ];
+          
+          if (errorCode >= 0 && errorCode < errorMap.length) {
+            errorMessage = errorMap[errorCode];
+          }
+        }
+        
+        this.showFieldError(phoneInput, errorMessage);
+        phoneInput.classList.add('error');
+        return false;
+      }
+    } catch (error) {
+      console.error('Phone validation error:', error);
+      this.showFieldError(phoneInput, 'Ошибка проверки номера');
       phoneInput.classList.add('error');
       return false;
     }
@@ -493,7 +667,7 @@ class RegistrationModal {
     });
   }
   
-  handleSubmit() {
+  async handleSubmit() {
     // Validate all fields including phone
     let isValid = true;
     const inputs = this.form.querySelectorAll('input');
@@ -509,60 +683,107 @@ class RegistrationModal {
       return;
     }
     
-    // Collect form data
-    const formData = new FormData(this.form);
+    // Show loading state
+    const submitBtn = this.form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span style="opacity: 0.7;">Отправка...</span>';
     
-    // Get international phone number if available
-    let phoneNumber = formData.get('phone');
-    if (this.phoneInputInstance) {
-      phoneNumber = this.phoneInputInstance.getNumber(); // Full international format
-    }
-    
-    const userData = {
-      firstName: formData.get('firstName'),
-      lastName: formData.get('lastName'),
-      email: formData.get('email'),
-      phone: phoneNumber,
-      phoneCountry: this.phoneInputInstance ? this.phoneInputInstance.getSelectedCountryData().name : '',
-      ip: this.userIP,
-      country: this.userCountry,
-      timestamp: new Date().toISOString()
-    };
-    
-    console.log('Registration data:', userData);
-    
-    // Show success message
-    toastr.success('Регистрация успешно завершена!', 'Успех');
-    
-    // Close modal after short delay
-    setTimeout(() => {
-      this.closeModal();
-    }, 2000);
-    
-    // Here you would normally send the data to your server
-    // await this.sendRegistrationData(userData);
-  }
-  
-  // Future method for sending data to server
-  async sendRegistrationData(userData) {
     try {
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData)
-      });
+      // Collect form data
+      const formData = new FormData(this.form);
       
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Registration successful:', result);
-      } else {
-        throw new Error('Registration failed');
+      // Get international phone number if available
+      let phoneNumber = formData.get('phone');
+      if (this.phoneInputInstance) {
+        phoneNumber = this.phoneInputInstance.getNumber(); // Full international format
       }
+      
+      // Prepare CRM payload according to the specification
+      const crmPayload = {
+        full_name: `${formData.get('firstName')} ${formData.get('lastName')}`.trim(),
+        country: this.getCountryFromPhoneInput(),
+        email: formData.get('email'),
+        landing: window.location.href,
+        phone: this.formatPhoneForCRM(phoneNumber), // Without + sign
+        user_id: this.getUserIdFromUrl(),
+        ip: this.userIP || '',
+        source: CRM_CONFIG.source,
+        landing_name: CRM_CONFIG.landingName,
+        description: CRM_CONFIG.description
+      };
+      
+      console.log('Отправляемые данные:', crmPayload);
+      
+      // Send to CRM
+      const result = await this.sendLeadToCRM(crmPayload);
+      
+      // Restore button state
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+      
+      // Close modal first
+      this.closeModal();
+      
+      // Then show appropriate toast
+      if (result.success) {
+        // Success toast
+        toastr.success('✅ Заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.', 'Успех', {
+          timeOut: 6000,
+          closeButton: true,
+          progressBar: true
+        });
+        
+        // Reset form
+        this.form.reset();
+        this.clearAllErrors();
+        
+        // Log successful submission
+        if (result.data) {
+          console.log('✅ Lead ID:', result.data.lead_id || result.data.external_id);
+          if (result.data.link_auto_login) {
+            console.log('🔗 Auto login link:', result.data.link_auto_login);
+          }
+        }
+        
+      } else {
+        // Error toast
+        let errorMessage = '❌ Произошла ошибка при отправке заявки.';
+        
+        // Check for specific error messages
+        if (result.data && typeof result.data === 'object') {
+          if (result.data.message) {
+            errorMessage = `❌ ${result.data.message}`;
+          } else if (result.data.raw && result.data.raw.includes('offers not found')) {
+            errorMessage = '❌ Предложение не найдено. Попробуйте позже.';
+          }
+        } else if (result.error) {
+          errorMessage = `❌ ${result.error}`;
+        }
+        
+        toastr.error(errorMessage, 'Ошибка', {
+          timeOut: 7000,
+          closeButton: true,
+          progressBar: true
+        });
+      }
+      
     } catch (error) {
-      console.error('Registration error:', error);
-      toastr.error('Произошла ошибка при регистрации. Попробуйте еще раз.');
+      console.error('Ошибка при отправке формы:', error);
+      
+      // Restore button state
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+      
+      // Close modal
+      this.closeModal();
+      
+      // Show error toast
+      toastr.error('⚠️ Произошла ошибка соединения. Проверьте интернет-соединение и попробуйте снова.', 'Ошибка', {
+        timeOut: 7000,
+        closeButton: true,
+        progressBar: true
+      });
     }
   }
 }
@@ -594,13 +815,43 @@ document.addEventListener('DOMContentLoaded', function() {
       right: 20px;
     }
     .toast {
-      border-radius: 8px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 16px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      min-height: 60px;
     }
     .toast-success {
-      background-color: #28a745;
+      background: linear-gradient(135deg, #28a745, #20c997);
+      color: white;
     }
     .toast-error {
-      background-color: #dc3545;
+      background: linear-gradient(135deg, #dc3545, #fd7e14);
+      color: white;
+    }
+    .toast-progress {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+    .toast-close-button {
+      color: white;
+      opacity: 0.8;
+    }
+    .toast-close-button:hover {
+      opacity: 1;
+    }
+    /* Custom animation */
+    .toast {
+      animation: slideInRight 0.3s ease-out;
+    }
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
     }
   `;
   document.head.appendChild(style);

@@ -5,7 +5,7 @@
   font-weight: 700;
   font-size: 30px;
   margin-bottom: 10%;
-  border-radius: 10px;
+  border-radius: 70px;
   max-width: 100%;
   margin: 0 auto;
   width: 100%;
@@ -479,7 +479,7 @@ p {
 
 .iti__tel-input {
   border-radius: 0 8px 8px 0 !important;
-
+  border-left: none !important;
   width: 100%;
   font-size: 16px;
   padding: 15px 16px;
@@ -504,6 +504,14 @@ p {
   height: 51px;
   display: flex;
   align-items: center;
+}
+
+/* Styles for separate dial code */
+.iti__selected-dial-code {
+  color: var(--plata-dark-grey);
+  font-size: 16px;
+  margin-left: 8px;
+  font-weight: 500;
 }
 
 .iti__selected-flag:hover {

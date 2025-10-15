@@ -33,7 +33,6 @@ header svg {
 header .bottom-section {
   width: 100%;
   border-bottom: 1px solid rgb(230, 232, 234);
-  height: 46px;
 }
 
 header .bottom-section .container {
@@ -45,12 +44,23 @@ header .bottom-section nav {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  overflow-x: auto;
 }
 
 header .bottom-section nav .link {
   padding: 12px 8px;
   color: rgb(20, 20, 20);
   position: relative;
+  width: fit-content;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  header .bottom-section nav {
+    overflow-y: hidden;
+    align-items: flex-start;
+  }
 }
 
 header .bottom-section nav .link:hover {
