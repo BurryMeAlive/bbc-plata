@@ -104,7 +104,7 @@
       href="/api/"
     />
     <link rel="sitemap" type="application/rss+xml" href="/sitemap.xml" />
-    <link rel="stylesheet" href="./form/css/form.css" />
+    <link rel="stylesheet" href="./css/form.css" />
     <link
       rel="stylesheet"
       href="./css/flag-icon.min.css"
@@ -1281,115 +1281,7 @@
                       >
                         <div class="wsw">
                           <style>
-                            .header {
-                              border-bottom: 3px solid #850d0d;
-                              padding-bottom: 20px;
-                              margin-bottom: 30px;
-                            }
 
-                            h1 {
-                              font-size: 1.2em;
-                              color: #850d0d;
-                              margin-bottom: 15px;
-                            }
-
-                            .date {
-                              color: #7f8c8d;
-                              font-style: italic;
-                              text-align: center;
-                              margin-bottom: 10px;
-                            }
-
-                            .lead {
-                              font-size: 1.2em;
-                              font-weight: bold;
-                              color: #34495e;
-                              margin-bottom: 25px;
-                              text-align: center;
-                            }
-
-                            h2 {
-                              color: #850d0d;
-                              margin: 30px 0 15px 0;
-                              padding-bottom: 10px;
-                              border-bottom: 1px solid #bdc3c7;
-                              font-weight: 700px;
-                              font-size: 48px;
-                            }
-
-                            p {
-                              margin-bottom: 15px;
-                              text-align: justify;
-                            }
-
-                            .quote {
-                              background-color: #ecf0f1;
-                              border-left: 4px solid rgb(184, 0, 0);
-                              padding: 15px 20px;
-                              margin: 20px 0;
-                              font-style: italic;
-                            }
-
-                            .quote-source {
-                              text-align: right;
-                              color: #7f8c8d;
-                              margin-top: 10px;
-                            }
-
-                            .highlight-box {
-                              background-color: #fff;
-                              border: 1px solid #ddd;
-                              border-radius: 5px;
-                              padding: 20px;
-                              margin: 25px 0;
-                              box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-                            }
-
-                            .video-placeholder {
-                              background-color: #e0e0e0;
-                              border: 2px dashed #95a5a6;
-                              height: 200px;
-                              display: flex;
-                              align-items: center;
-                              justify-content: center;
-                              margin: 20px 0;
-                              color: #7f8c8d;
-                              font-style: italic;
-                            }
-
-                            .celebrities {
-                              display: grid;
-                              grid-template-columns: 1fr;
-                              gap: 20px;
-                              margin: 25px 0;
-                            }
-
-                            .celebrity-item {
-                              background-color: #fff;
-                              padding: 15px;
-                              border-radius: 5px;
-                              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-                            }
-
-                            .celebrity-name {
-                              font-weight: bold;
-                              color: #850d0d;
-                              margin-bottom: 10px;
-                            }
-
-                            .conclusion {
-                              background-color: #850d0d;
-                              color: white;
-                              padding: 25px;
-                              border-radius: 5px;
-                              margin-top: 30px;
-                            }
-
-                            @media (min-width: 768px) {
-                              .celebrities {
-                                grid-template-columns: repeat(2, 1fr);
-                              }
-                            }
                           </style>
 
                           <div class="header">
@@ -2042,5 +1934,103 @@
         </div>
       </div>
     </div>
+  <!-- Modal Form -->
+  <div id="registrationModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Регистрация на PLATA</h2>
+        <span class="close">&times;</span>
+      </div>
+      
+      <!-- Progress Bar -->
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress" id="progressBar"></div>
+        </div>
+        <div class="progress-steps">
+          <div class="step active" data-step="1">
+            <p class="title">1</p>
+            <p class="sub-title">Имя</p>
+          </div>
+          <div class="step" data-step="2">
+            <p class="title">2</p>
+            <p class="sub-title">Фамилия</p>
+          </div>
+          <div class="step" data-step="3">
+            <p class="title">3</p>
+            <p class="sub-title">Email</p>
+          </div>
+          <div class="step" data-step="4">
+            <p class="title">4</p>
+            <p class="sub-title">Телефон</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Form Steps -->
+      <form id="registrationForm">
+        <!-- Step 1: First Name -->
+        <div class="form-step active" data-step="1">
+          <div class="form-group">
+            <label for="firstName">Имя</label>
+            <input type="text" id="firstName" name="firstName" placeholder="Введите ваше имя" required>
+            <div class="error-message" id="firstNameError"></div>
+          </div>
+          <button type="button" class="btn-next" onclick="nextStep()">Далее</button>
+        </div>
+        
+        <!-- Step 2: Last Name -->
+        <div class="form-step" data-step="2">
+          <div class="form-group">
+            <label for="lastName">Фамилия</label>
+            <input type="text" id="lastName" name="lastName" placeholder="Введите вашу фамилию" required>
+            <div class="error-message" id="lastNameError"></div>
+          </div>
+          <div class="form-buttons">
+            <button type="button" class="btn-prev" onclick="prevStep()">Назад</button>
+            <button type="button" class="btn-next" onclick="nextStep()">Далее</button>
+          </div>
+        </div>
+        
+        <!-- Step 3: Email -->
+        <div class="form-step" data-step="3">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Введите ваш email" required>
+            <div class="error-message" id="emailError"></div>
+          </div>
+          <div class="form-buttons">
+            <button type="button" class="btn-prev" onclick="prevStep()">Назад</button>
+            <button type="button" class="btn-next" onclick="nextStep()">Далее</button>
+          </div>
+        </div>
+        
+        <!-- Step 4: Phone -->
+        <div class="form-step" data-step="4">
+          <div class="form-group">
+            <label for="phone">Номер телефона</label>
+            <input type="tel" id="phone" name="phone" class="form-input" required>
+            <div class="error-message" id="phoneError"></div>
+          </div>
+          <div class="form-buttons">
+            <button type="button" class="btn-prev" onclick="prevStep()">Назад</button>
+            <button type="submit" class="btn-submit">Зарегистрироваться</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/validate.js/0.13.1/validate.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+  
+  <!-- International Telephone Input -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@21.0.8/build/css/intlTelInput.css">
+  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@21.0.8/build/js/intlTelInput.min.js"></script>
+  
+  <script src="js/registration-modal.js"></script>
+  
   </body>
 </html>
