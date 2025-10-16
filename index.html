@@ -170,6 +170,10 @@
       }
     </script>
     <link rel="stylesheet" href="./css/styles.css" />
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <!-- Celebrities Slider CSS -->
+    <link rel="stylesheet" href="./css/celebrities-slider.css" />
   </head>
   <body
     class="nav-no-loaded cc_theme pg-article print-lay-article js-category-to-nav nojs-images"
@@ -1354,57 +1358,67 @@
                             подлинные.
                           </p>
 
-                          <div class="celebrities">
-                            <div class="celebrity-item">
-                              <div class="celebrity-name">Алла Пугачёва</div>
-                              <div class="quote">
-                                "Я инвестировала в PLATA не ради денег — ради
-                                будущего. Это шанс для людей освободиться от
-                                системы".
+                          <div class="celebrities-slider">
+                            <!-- Swiper -->
+                            <div class="swiper celebritiesSwiper">
+                              <div class="swiper-wrapper">
+                                <div class="swiper-slide">
+                                  <div class="celebrity-item">
+                                    <div class="celebrity-name">Алла Пугачёва</div>
+                                    <div class="quote">
+                                      "Я инвестировала в PLATA не ради денег — ради
+                                      будущего. Это шанс для людей освободиться от
+                                      системы".
+                                    </div>
+                                    <video
+                                      controls
+                                      width="100%"
+                                      poster="images/preview-image_3.jpg"
+                                    >
+                                      <source src="video_3.mp4" type="video/mp4" />
+                                      Ваш браузер не поддерживает видео.
+                                    </video>
+                                  </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                  <div class="celebrity-item">
+                                    <div class="celebrity-name">Отар Кушанашвили</div>
+                                    <div class="quote">
+                                      "PLATA — это не хайп. Это восстание финансово
+                                      свободных. Я с ними. Без комментариев".
+                                    </div>
+                                    <video
+                                      controls
+                                      width="100%"
+                                      poster="images/preview-image_4.jpg"
+                                    >
+                                      <source src="video_4.mp4" type="video/mp4" />
+                                      Ваш браузер не поддерживает видео.
+                                    </video>
+                                  </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                  <div class="celebrity-item">
+                                    <div class="celebrity-name">Юрий Шевчук</div>
+                                    <div class="quote">
+                                      "Система всегда боится тех, кто нашёл способ
+                                      жить не по её правилам. Я не вижу в PLATA зла".
+                                    </div>
+                                    <video
+                                      controls
+                                      width="100%"
+                                      poster="images/preview-image_5.jpg"
+                                    >
+                                      <source src="video_5.mp4" type="video/mp4" />
+                                      Ваш браузер не поддерживает видео.
+                                    </video>
+                                  </div>
+                                </div>
                               </div>
-                              <!-- <div class="video-placeholder" style="height: 100px; margin: 10px 0;">Видео с Аллой</div> -->
-                              <video
-                                controls
-                                width="100%"
-                                poster="images/preview-image_3.jpg"
-                              >
-                                <source src="video_3.mp4" type="video/mp4" />
-                                Ваш браузер не поддерживает видео.
-                              </video>
-                            </div>
-
-                            <div class="celebrity-item">
-                              <div class="celebrity-name">Отар Кушанашвили</div>
-                              <div class="quote">
-                                "PLATA — это не хайп. Это восстание финансово
-                                свободных. Я с ними. Без комментариев".
-                              </div>
-                              <!-- <div class="video-placeholder" style="height: 100px; margin: 10px 0;">Видео с Отаром</div> -->
-                              <video
-                                controls
-                                width="100%"
-                                poster="images/preview-image_4.jpg"
-                              >
-                                <source src="video_4.mp4" type="video/mp4" />
-                                Ваш браузер не поддерживает видео.
-                              </video>
-                            </div>
-
-                            <div class="celebrity-item">
-                              <div class="celebrity-name">Юрий Шевчук</div>
-                              <div class="quote">
-                                "Система всегда боится тех, кто нашёл способ
-                                жить не по её правилам. Я не вижу в PLATA зла".
-                              </div>
-                              <!-- <div class="video-placeholder" style="height: 100px; margin: 10px 0;">Видео с Юрой</div> -->
-                              <video
-                                controls
-                                width="100%"
-                                poster="images/preview-image_5.jpg"
-                              >
-                                <source src="video_5.mp4" type="video/mp4" />
-                                Ваш браузер не поддерживает видео.
-                              </video>
+                              <!-- Add Pagination -->
+                              <div class="swiper-pagination"></div>
                             </div>
                           </div>
 
@@ -1808,5 +1822,9 @@
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@21.0.8/build/js/intlTelInput.min.js"></script>
 
     <script src="js/registration-modal.js"></script>
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <!-- Celebrities Slider JS -->
+    <script src="js/celebrities-slider.js"></script>
   </body>
 </html>
